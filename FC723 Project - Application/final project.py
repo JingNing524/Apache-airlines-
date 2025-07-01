@@ -26,11 +26,6 @@ CREATE TABLE IF NOT EXISTS bookings (
 conn.commit()
 
 
-
-
-
-
-
 # F = Free 
 # R = Reserved 
 # X = Aisle 
@@ -58,7 +53,8 @@ def main_menu():
         print("2. Book a seat")
         print("3. Free a seat")
         print("4. Show booking status")
-        print("5. Exit program")
+        print("5. Search by booking reference")
+        print("6. Exit program")
 
         choice = input("Enter your choice (1-5): ")
 
@@ -71,7 +67,9 @@ def main_menu():
         elif choice == '4':
             display_seat_layout()
         elif choice == '5':
-            print("Exiting program.\n")
+            search_by_reference()
+        elif choice == '6':
+            print("Exiting program. Goodbye!")
             break
         else:
             print("Invalid choice.\n")
@@ -187,8 +185,29 @@ def free_seat():
     seat_matrix[row_index][col_index] = 'F'
     print(f"✅ Seat {seat_id} is now free.\n")
 
+#search booking reference
+def search_by_reference():
+    ref = input("Enter booking reference (8 characters): ").upper()
+
+    if len(ref) != 8:
+        print("Booking reference must be 8 characters long.\n")
+        return
+
+    cursor.execute("SELECT * FROM bookings WHERE reference = ?", (ref,))
+    result = cursor.fetchone()
+
+    if result:
+        print("\nBooking Found:")
+        print(f"Reference: {result[0]}")
+        print(f"Name     : {result[1]} {result[2]}")
+        print(f"Passport : {result[3]}")
+        print(f"Seat     : {result[4]}\n")
+    else:
+        print("❌ Booking reference not found.\n")
+
 
 
 
 if __name__ == "__main__":
-    main_menu()
+     main_menu()
+     conn.close()
