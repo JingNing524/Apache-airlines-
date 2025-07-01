@@ -25,4 +25,32 @@ def display_seat_layout():
         print(row_label + ' ' + ' '.join(row))
     print()
 
-print(display_seat_layout())
+#main menu
+def main_menu():
+    while True:
+        print("=== Seat Booking System ===")
+        print("1. Check availability of seat")
+        print("2. Book a seat")
+        print("3. Free a seat")
+        print("4. Show booking status")
+        print("5. Exit program")
+
+        choice = input("Enter your choice (1-5): ")
+
+        if choice == '1':
+            print("→ Check seat (to be implemented)\n")
+        elif choice == '2':
+            print("→ Book seat (to be implemented)\n")
+        elif choice == '3':
+            print("→ Free seat (to be implemented)\n")
+        elif choice == '4':
+            display_seat_layout()
+        elif choice == '5':
+            print("Exiting program.\n")
+            break
+        else:
+            print("Invalid choice.\n")
+
+
+if __name__ == "__main__":
+    main_menu()
