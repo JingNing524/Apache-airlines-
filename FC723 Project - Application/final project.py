@@ -54,9 +54,10 @@ def main_menu():
         print("3. Free a seat")
         print("4. Show booking status")
         print("5. Search by booking reference")
-        print("6. Exit program")
+        print("6. Show booking summary")
+        print("7. Exit program")
 
-        choice = input("Enter your choice (1-5): ")
+        choice = input("Enter your choice (1-7): ")
 
         if choice == '1':
             check_availability()
@@ -69,10 +70,11 @@ def main_menu():
         elif choice == '5':
             search_by_reference()
         elif choice == '6':
+            show_booking_summary()
+        elif choice == '7':
             print("Exiting program. Goodbye!")
             break
-        else:
-            print("Invalid choice.\n")
+
 
 
 #check the availability of user's seat
@@ -205,6 +207,25 @@ def search_by_reference():
     else:
         print("❌ Booking reference not found.\n")
 
+# summarize recent booking status
+def show_booking_summary():
+    total_reserved = 0
+    total_free = 0
+    total_unbookable = 0  # X + S
+
+    for row in seat_matrix:
+        for seat in row:
+            if seat == 'R':
+                total_reserved += 1
+            elif seat == 'F':
+                total_free += 1
+            elif seat in ('X', 'S'):
+                total_unbookable += 1
+
+    print("\n📊 Booking Summary:")
+    print(f"✅ Reserved seats    : {total_reserved}")
+    print(f"🪑 Available seats   : {total_free}")
+    print(f"❌ Not bookable (X/S): {total_unbookable}\n")
 
 
 
