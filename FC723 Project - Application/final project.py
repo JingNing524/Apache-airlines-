@@ -42,7 +42,7 @@ def main_menu():
         elif choice == '2':
             book_seat()
         elif choice == '3':
-            print("→ Free seat (to be implemented)\n")
+            free_seat()
         elif choice == '4':
             display_seat_layout()
         elif choice == '5':
@@ -110,6 +110,34 @@ def book_seat():
         print(f"❌ Seat {seat_id} is storage. You cannot book it.\n")
 
 
+#free a seat
+def free_seat():
+    seat_id = input("Enter seat ID to free (e.g., A0): ").upper()
+    
+    if len(seat_id) != 2 or not seat_id[0].isalpha() or not seat_id[1].isdigit():
+        print("Invalid seat ID format.\n")
+        return
+    
+    row_char = seat_id[0]
+    col_index = int(seat_id[1])
+    row_index = ord(row_char) - ord('A')
+
+    #check seat area
+    if row_index < 0 or row_index >= len(seat_matrix) or col_index < 0 or col_index >= len(seat_matrix[0]):
+        print("Seat ID out of range.\n")
+        return
+
+    status = seat_matrix[row_index][col_index]
+    
+    if status == 'R':
+        seat_matrix[row_index][col_index] = 'F'  #change back to aviliably
+        print(f"✅ Seat {seat_id} is now free.\n")
+    elif status == 'F':
+        print(f"ℹ️ Seat {seat_id} is already free.\n")
+    elif status == 'X':
+        print(f"❌ Seat {seat_id} is an aisle. It was never reservable.\n")
+    elif status == 'S':
+        print(f"❌ Seat {seat_id} is storage. It was never reservable.\n")
 
 
 
