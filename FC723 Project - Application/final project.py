@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jun 26 10:48:12 2025
+Created on Sun Jul  6 18:24:31 2025
 
 @author: jninggggggh
 """
-import sqlite3
-import random
-import string
+#this script implements a simple console-based seat booking system using SQLite for persistent storage of reservations.
+import sqlite3 # SQLite database API
+import random  # Random generation for booking reference codes
+import string  # String constants for reference code generation
+import re      # Regular expressions for input validation
 
 # connect SQLite 
 conn = sqlite3.connect("booking.db")
-cursor = conn.cursor()
+cursor = conn.cursor()  # Cursor object for executing SQL commands
 
 
 cursor.execute('''
@@ -20,10 +22,10 @@ CREATE TABLE IF NOT EXISTS bookings (
     first_name TEXT,
     last_name TEXT,
     passport TEXT,
-    seat_id TEXT
+    seat_id TEXT UNIQUE
 )
 ''')
-conn.commit()
+conn.commit()   # Save changes to the database
 
 
 # F = Free 
@@ -37,17 +39,40 @@ seat_matrix = [
     ['F', 'F', 'X', 'F', 'F'],
 ]
 
+def is_valid_seat_format(seat_id):
+    
+    # Ensure the basic pattern: one uppercase letter followed by one or more digits
+    if not re.match(r"^[A-Z]\d+$", seat_id):
+        return False
+
+    # Convert the row letter to a zero-based index
+    row_char = seat_id[0]
+    row_index = ord(row_char) - ord('A')
+    # Number part of seat ID (column) is not fully validated here
+    return row_index < len(seat_matrix)
+
+ 
+
+
 # show the floor plan of Burak757
 def display_seat_layout():
     print("\nSeat Layout:")
+
+    
+    header = "   " + " ".join([str(i + 1) for i in range(len(seat_matrix[0]))])
+    print(header)
+
+    
     for i, row in enumerate(seat_matrix):
-        row_label = chr(65 + i)  #0 → A，1 → B, 2 → C
-        print(row_label + ' ' + ' '.join(row))
+        row_label = chr(65 + i)  # A, B, C...
+        print(row_label + '  ' + ' '.join(row))
     print()
+
 
 #main menu
 def main_menu():
     while True:
+        
         print("=== Seat Booking System ===")
         print("1. Check availability of seat")
         print("2. Book a seat")
@@ -81,12 +106,13 @@ def main_menu():
 def check_availability():
     seat_id = input("Enter seat ID to check (e.g., A0): ").upper()
     
-    if len(seat_id) != 2 or not seat_id[0].isalpha() or not seat_id[1].isdigit():
-        print("Invalid seat ID format. Please use format like A0, B2, etc.\n")
+    if not is_valid_seat_format(seat_id):
+        print("Invalid seat ID format. Please use something like A1, B2, C5.")
         return
+
     
     row_char = seat_id[0]
-    col_index = int(seat_id[1])
+    col_index = int(seat_id[1:]) - 1
     row_index = ord(row_char) - ord('A')
 
     #check if it is in the area of the floor plan
@@ -109,8 +135,14 @@ def check_availability():
 # generate the unique 8 words reference
 def generate_booking_reference():
     while True:
+        
+        #randomly choose 8 characters from uppercase letters and digits
         ref = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        
+        #check if the reference already exists in the database
         cursor.execute("SELECT * FROM bookings WHERE reference = ?", (ref,))
+       
+        #if not found in database, it's unique → return it
         if cursor.fetchone() is None:
             return ref
 
@@ -119,12 +151,13 @@ def generate_booking_reference():
 def book_seat():
     seat_id = input("Enter seat ID to book (e.g., A0): ").upper()
 
-    if len(seat_id) != 2 or not seat_id[0].isalpha() or not seat_id[1].isdigit():
-        print("Invalid seat ID format.\n")
+    if not is_valid_seat_format(seat_id):
+        print("Invalid seat ID format. Please use something like A1, B2, C5.")
         return
 
+
     row_char = seat_id[0]
-    col_index = int(seat_id[1])
+    col_index = int(seat_id[1:]) - 1
     row_index = ord(row_char) - ord('A')
 
     if row_index < 0 or row_index >= len(seat_matrix) or col_index < 0 or col_index >= len(seat_matrix[0]):
@@ -163,12 +196,13 @@ def book_seat():
 def free_seat():
     seat_id = input("Enter seat ID to free (e.g., A0): ").upper()
 
-    if len(seat_id) != 2 or not seat_id[0].isalpha() or not seat_id[1].isdigit():
-        print("Invalid seat ID format.\n")
+    if not is_valid_seat_format(seat_id):
+        print("Invalid seat ID format. Please use something like A1, B2, C5.")
         return
 
+
     row_char = seat_id[0]
-    col_index = int(seat_id[1])
+    col_index = int(seat_id[1:]) - 1
     row_index = ord(row_char) - ord('A')
 
     if row_index < 0 or row_index >= len(seat_matrix) or col_index < 0 or col_index >= len(seat_matrix[0]):
